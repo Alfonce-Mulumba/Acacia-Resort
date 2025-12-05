@@ -42,7 +42,7 @@
   <header id="header" class="header d-flex sticky-top">
   <div class="container position-relative align-items-center justify-content-between d-flex m-auto gap-4">
 
-    <a href="#gallery" class="logo d-flex align-items-center me-auto me-xl-0">
+    <a href="/#gallery" class="logo d-flex align-items-center me-auto me-xl-0">
                 <img src="{% static 'assets/img/img.png' %}" alt="" class="img ms-0 border-0 rounded-circle h-100">
 
       <h1 class="sitename"><strong>Acacia</strong><span class="text-primary"> Resort</span></h1>
@@ -91,60 +91,48 @@
       <!-- About / Logo -->
       <div class="col-lg-4 text-center text-lg-start">
         <a href="/" class="logo d-flex align-items-center justify-content-center justify-content-lg-start mb-4">
-          <span class="sitename">Acacia Resort</span>
+          <span class="sitename fs-1 fw-bolder text-shadow: 2px 2px 4px dark; text-black">Acacia Resort</span>
         </a>
         <p>Experience fine dining, luxury stays, and memorable events at Acacia Resort.</p>
-
-        <div class="newsletter-form mt-3">
-          <h5>Stay Updated</h5>
-          <form action="#" method="post" class="php-email-form d-flex justify-content-center justify-content-lg-start">
-            <input type="email" name="email" class="form-control me-2" placeholder="Enter your email" required>
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-send"></i>
-            </button>
-          </form>
-        </div>
       </div>
 
       <!-- Quick Links -->
       <div class="col-lg-2 col-6 text-center text-lg-start">
         <h4>Company</h4>
         <ul class="list-unstyled">
-          <li><a href="#"><i class="bi bi-chevron-right"></i> About</a></li>
+          <li><a href="/about/"><i class="bi bi-chevron-right"></i> About</a></li>
           <li><a href="#"><i class="bi bi-chevron-right"></i> Careers</a></li>
           <li><a href="#"><i class="bi bi-chevron-right"></i> Press</a></li>
           <li><a href="#"><i class="bi bi-chevron-right"></i> Blog</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Contact</a></li>
         </ul>
       </div>
 
       <div class="col-lg-2 col-6 text-center text-lg-start">
         <h4>Menu</h4>
         <ul class="list-unstyled">
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Breakfast</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Lunch</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Dinner</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Drinks</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Desserts</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Breakfast</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Lunch</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Dinner</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Drinks</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Desserts</a></li>
         </ul>
       </div>
 
       <!-- Contact -->
       <div class="col-lg-4 text-center text-lg-start">
         <h4>Get in Touch</h4>
-        <p><i class="bi bi-geo-alt"></i> Wote Town, Makueni County, Kenya</p>
-        <p><i class="bi bi-telephone"></i> +254 712 345 678</p>
-        <p><i class="bi bi-envelope"></i> info@acaciaresort.co.ke</p>
+        <p><i class="bi bi-geo-alt"></i><a href="/about/#location"> Wote Town, Makueni County, Kenya</a></p>
+        <p><i class="bi bi-telephone"></i><a href="tel:+254746993887">  +2547 46993887</a></p>
+        <p><i class="bi bi-envelope"></i><a href="mailto:info@acaciaresort.co.ke">  info@acaciaresort.co.ke</a></p>
+      </div>
 
-        <div class="social-links mt-2">
+    </div>
+      <div class="social-links justify-content-center mt-2">
           <a href="#"><i class="bi bi-facebook"></i></a>
           <a href="#"><i class="bi bi-twitter"></i></a>
           <a href="#"><i class="bi bi-instagram"></i></a>
           <a href="#"><i class="bi bi-linkedin"></i></a>
         </div>
-      </div>
-
-    </div>
   </div>
 
   <div class="footer-bottom py-3 mt-4 text-center">

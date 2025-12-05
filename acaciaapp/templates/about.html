@@ -4,6 +4,20 @@
 	About Us
 {% endblock %}
 {% block content %}
+    <style>
+    .text-justify-custom {
+  text-align: justify;
+  text-justify: inter-word; /* Helps control spacing between words */
+}
+
+/* For better multi-paragraph justification */
+.text-justify-custom:not(:last-child):after {
+  content: "";
+  display: inline-block;
+  width: 100%;
+}
+
+    </style>
 
 <section id="about" class="about section">
 
@@ -13,7 +27,7 @@
       <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
         <div class="about-image">
           <img src="{% static 'assets/img/restaurant/chef-3.webp' %}" alt="Executive Chef" class="img-fluid rounded">
-          <div class="experience-badge">
+          <div class="experience-badge border-0 rounded-circle">
             <span class="years">25+</span>
             <span class="text">Years of Culinary Excellence</span>
           </div>
@@ -23,11 +37,11 @@
       <div class="col-lg-6" data-aos="fade-left" data-aos-delay="300">
         <div class="about-content">
           <div class="section-header">
-            <h2>Meet Our Executive Chef</h2>
-            <p class="subtitle">Bringing world-class flavours to Acacia Resort</p>
+            <h2 class="text-center">Meet Our Executive Chef</h2>
+            <p class="subtitle text-center">Bringing world-class flavours to Acacia Resort</p>
           </div>
 
-          <div class="story-text">
+          <div class="story-text text-justify-custom d-block">
             <p>At Acacia Resort, our culinary philosophy is deeply rooted in authentic African hospitality and world-inspired creativity. Chef
             <strong>Emmanuel Karanja</strong> leads our kitchen with a passion for fresh, locally sourced ingredients and refined cooking techniques
             that highlight Kenya’s rich food heritage.</p>
@@ -60,9 +74,9 @@
             <cite>- Chef Emmanuel Karanja</cite>
           </div>
 
-          <div class="cta-buttons">
-            <a href="#menu" class="btn btn-primary">View Menu</a>
-            <a href="#book-a-table" class="btn btn-outline">Book a Table</a>
+          <div class="cta-buttons justify-content-center">
+            <a href="/menu/" class="btn btn-primary border-0 rounded-5">View Menu</a>
+            <a href="/reservation/" class="btn btn-outline  border-1 rounded-5">Book a Table</a>
           </div>
         </div>
       </div>
@@ -226,17 +240,14 @@
 
           <!-- MAP UNCHANGED -->
           <div class="map-wrapper">
-            <iframe ...></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3987.893555921716!2d37.62149597438009!3d-1.7797840982038535!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x18254720ca606715%3A0xdf469fe1d0522e98!2sAcacia%20Resort%20Wote%20Makueni!5e0!3m2!1sen!2ske!4v1764954470861!5m2!1sen!2ske" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             <div class="map-overlay">
-              <div class="location-badge">
-                <i class="bi bi-geo-alt"></i>
-                <span>We're Here</span>
-              </div>
+
             </div>
           </div>
 
           <div class="transportation-info" data-aos="fade-up" data-aos-delay="300">
-            <h4>Transportation &amp; Parking</h4>
+            <h4 class="text-center">Transportation &amp; Parking</h4>
             <div class="transport-grid">
               <div class="transport-item">
                 <i class="bi bi-train-front"></i>
@@ -273,7 +284,7 @@
               <i class="bi bi-telephone-fill"></i>
             </div>
             <h3>Reservations</h3>
-            <p class="phone">+254 700 000 000</p>
+            <p class="phone"><a href="tel:+254746993887">+254 746993887</a></p>
             <p class="note">We recommend booking 24–48 hours in advance</p>
           </div>
 
@@ -285,7 +296,7 @@
             <div class="hours-list">
               <div class="hour-item">
                 <span class="day">Monday - Friday</span>
-                <span class="time">8:00 AM - 10:00 PM</span>
+                <span class="time">8:00 AM - 11:00 PM</span>
               </div>
               <div class="hour-item">
                 <span class="day">Saturday</span>
@@ -293,14 +304,14 @@
               </div>
               <div class="hour-item">
                 <span class="day">Sunday</span>
-                <span class="time">9:00 AM - 9:00 PM</span>
+                <span class="time">9:00 AM - 10:00 PM</span>
               </div>
             </div>
           </div>
 
           <div class="action-buttons" data-aos="fade-up" data-aos-delay="550">
-            <a href="/reservation/" class="btn-primary">Book a Table</a>
-            <a href="#" class="btn-secondary">Get Directions</a>
+            <a href="/reservation/" class="btn-primary d-block m-auto w-50 border-0 rounded-5">Book a Table</a>
+            <a href="#location" class="btn-secondary d-block m-auto w-50 border-0 rounded-5">Get Directions</a>
           </div>
         </div>
       </div>

@@ -7,89 +7,18 @@
   <title>HomePage - Acacia</title>
   <meta name="description" content="">
   <meta name="keywords" content="">
-    <style>
-        /* ---------- SUCCESS TOAST (same as register) ---------- */
-.toast {
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  background: transparent;
-  padding: 15px 20px;
-  border-radius: 60px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  display: flex;
-  align-items: center;
-  z-index: 9999;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+
+<style>
+.text-justify-custom {
+  text-align: justify;
+  text-justify: inter-word; /* Helps control spacing between words */
 }
 
-.toast.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.toast.hidden {
-  display: none;
-}
-
-.toast-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Animated Checkmark */
-.checkmark-container {
-  width: 24px;
-  height: 24px;
-  position: relative;
-}
-
-.checkmark-circle {
+/* For better multi-paragraph justification */
+.text-justify-custom:not(:last-child):after {
+  content: "";
+  display: inline-block;
   width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 3px solid #22c55e; /* green */
-  animation: circleAnimation 0.6s ease forwards;
-}
-
-@keyframes circleAnimation {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.checkmark-stem {
-  position: absolute;
-  width: 3px;
-  height: 10px;
-  background: #22c55e;
-  left: 11px;
-  top: 6px;
-  transform-origin: bottom;
-  transform: rotate(45deg) scaleY(0);
-  animation: stemAnimation 0.4s ease 0.4s forwards;
-}
-
-.checkmark-kick {
-  position: absolute;
-  width: 3px;
-  height: 6px;
-  background: #22c55e;
-  left: 6px;
-  top: 12px;
-  transform-origin: top;
-  transform: rotate(-45deg) scaleY(0);
-  animation: kickAnimation 0.4s ease 0.5s forwards;
-}
-
-@keyframes stemAnimation {
-  to { transform: rotate(45deg) scaleY(1); }
-}
-
-@keyframes kickAnimation {
-  to { transform: rotate(-45deg) scaleY(1); }
 }
     </style>
 
@@ -132,7 +61,7 @@
     <li><a href="/events/">Events</a></li>
     <li><a href="/rooms/">Rooms</a></li>
     <li><a href="/about/">About</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#footer">Contact</a></li>
     <li><a href="/dashboard/">Admin</a></li>
   {% else %}
     <li><a href="/">Home</a></li>
@@ -213,8 +142,8 @@
 
         <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
           <div class="content">
-            <h1 class="hero-title mb-4">Experience Authentic Kenyan & Continental Cuisine</h1>
-            <p class="hero-subtitle mb-4">
+            <h1 class="hero-title text-center mb-4">Experience Authentic Kenyan & Continental Cuisine</h1>
+            <p class="hero-subtitle text-justify-custom mb-4">
               Welcome to Acacia Resort — a serene dining destination in the heart of Wote Town, Makueni.
               Enjoy freshly prepared meals inspired by Kenyan traditions and modern continental flavors, served
               in a relaxing, family-friendly atmosphere.
@@ -223,7 +152,7 @@
             <div class="hero-actions d-flex flex-wrap gap-3 mb-4">
                 <a href="{% if user.is_authenticated %}{% url 'reservation' %}{% else %}{% url 'login' %}?next={% url 'reservation' %}{% endif %}" class="btn btn-primary">Book a Table</a>
 
-              <a href="#menu" class="btn btn-outline">View Menu</a>
+              <a href="/menu/" class="btn btn-outline">View Menu</a>
             </div>
 
             <div class="hero-info d-flex flex-wrap align-items-center gap-4">
@@ -231,7 +160,7 @@
                 <i class="bi bi-clock me-2"></i>
                 <div>
                   <small class="text-muted">Open Daily</small>
-                  <div class="fw-medium">8:00 AM – 10:00 PM</div>
+                  <div class="fw-medium">8:00 AM – 11:00 PM</div>
                 </div>
               </div>
 
@@ -239,7 +168,7 @@
                 <i class="bi bi-geo-alt me-2"></i>
                 <div>
                   <small class="text-muted">Location</small>
-                  <div class="fw-medium">Wote Town, Makueni County</div>
+                  <div class="fw-medium"><a href="/about/#location">Wote Town, Makueni County</a></div>
                 </div>
               </div>
             </div>
@@ -411,57 +340,6 @@
       </div>
 
     </section><!-- /Gallery Section -->
-
-
-<section id="contact" class="contact section">
-  <div class="container section-title text-center mb-0" data-aos="fade-up">
-    <h2>Contact</h2>
-    <p>Reach out to us for reservations, events, or general inquiries — we are happy to assist.
-        <br>
-    <span>We are available daily to assist with bookings, event arrangements, and customer support.</span></p>
-  </div>
-
-  <div class="container">
-    <div class="row justify-content-center mt-1">
-
-      <!-- Contact Info Centered -->
-      <div class="col-lg-8 m-auto">
-        <div class="contact-info text-center">
-          <div class="contact-card justify-content-center mt-0">
-            <div class="contact-details justify-content-center d-flex flex-wrap gap-5">
-              <div class="contact-item my-3">
-                <i class="bi bi-envelope fs-3"></i>
-                  <h4>Email:</h4>
-                  <p>info@acaciaresort.co.ke</p>
-              </div>
-              <div class="contact-item my-3">
-                <i class="bi bi-telephone fs-3"></i>
-                  <h4>Phone:</h4>
-                  <p>+254746993887</p>
-              </div>
-              <div class="contact-item my-3">
-                <i class="bi bi-geo-alt fs-3"></i>
-                  <h4>Address:</h4>
-                  <p>Acacia Resort</p>
-                  <p>Wote Town, Makueni County, Kenya</p>
-              </div>
-            </div>
-            <div class="social-links d-flex justify-content-center gap-3 mt-3">
-              <a href="#"><i class="bi bi-twitter"></i></a>
-              <a href="#"><i class="bi bi-facebook"></i></a>
-              <a href="#"><i class="bi bi-instagram"></i></a>
-              <a href="#"><i class="bi bi-linkedin"></i></a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-
-
   </main>
 
 <footer id="footer" class="footer light-background">
@@ -471,60 +349,48 @@
       <!-- About / Logo -->
       <div class="col-lg-4 text-center text-lg-start">
         <a href="/" class="logo d-flex align-items-center justify-content-center justify-content-lg-start mb-4">
-          <span class="sitename">Acacia Resort</span>
+          <span class="sitename fs-1 fw-bolder text-shadow: 2px 2px 4px dark; text-black">Acacia Resort</span>
         </a>
         <p>Experience fine dining, luxury stays, and memorable events at Acacia Resort.</p>
-
-        <div class="newsletter-form mt-3">
-          <h5>Stay Updated</h5>
-          <form action="#" method="post" class="php-email-form d-flex justify-content-center justify-content-lg-start">
-            <input type="email" name="email" class="form-control me-2" placeholder="Enter your email" required>
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-send"></i>
-            </button>
-          </form>
-        </div>
       </div>
 
       <!-- Quick Links -->
       <div class="col-lg-2 col-6 text-center text-lg-start">
         <h4>Company</h4>
         <ul class="list-unstyled">
-          <li><a href="#"><i class="bi bi-chevron-right"></i> About</a></li>
+          <li><a href="/about/"><i class="bi bi-chevron-right"></i> About</a></li>
           <li><a href="#"><i class="bi bi-chevron-right"></i> Careers</a></li>
           <li><a href="#"><i class="bi bi-chevron-right"></i> Press</a></li>
           <li><a href="#"><i class="bi bi-chevron-right"></i> Blog</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Contact</a></li>
         </ul>
       </div>
 
       <div class="col-lg-2 col-6 text-center text-lg-start">
         <h4>Menu</h4>
         <ul class="list-unstyled">
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Breakfast</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Lunch</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Dinner</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Drinks</a></li>
-          <li><a href="#"><i class="bi bi-chevron-right"></i> Desserts</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Breakfast</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Lunch</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Dinner</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Drinks</a></li>
+          <li><a href="/menu/"><i class="bi bi-chevron-right"></i> Desserts</a></li>
         </ul>
       </div>
 
       <!-- Contact -->
       <div class="col-lg-4 text-center text-lg-start">
         <h4>Get in Touch</h4>
-        <p><i class="bi bi-geo-alt"></i> Wote Town, Makueni County, Kenya</p>
-        <p><i class="bi bi-telephone"></i> +254 712 345 678</p>
-        <p><i class="bi bi-envelope"></i> info@acaciaresort.co.ke</p>
+        <p><i class="bi bi-geo-alt"></i><a href="/about/#location"> Wote Town, Makueni County, Kenya</a></p>
+        <p><i class="bi bi-telephone"></i><a href="tel:+254746993887">  +2547 46993887</a></p>
+        <p><i class="bi bi-envelope"></i><a href="mailto:info@acaciaresort.co.ke">  info@acaciaresort.co.ke</a></p>
+      </div>
 
-        <div class="social-links mt-2">
+    </div>
+      <div class="social-links justify-content-center mt-2">
           <a href="#"><i class="bi bi-facebook"></i></a>
           <a href="#"><i class="bi bi-twitter"></i></a>
           <a href="#"><i class="bi bi-instagram"></i></a>
           <a href="#"><i class="bi bi-linkedin"></i></a>
         </div>
-      </div>
-
-    </div>
   </div>
 
   <div class="footer-bottom py-3 mt-4 text-center">
