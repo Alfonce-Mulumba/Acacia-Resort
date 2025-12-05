@@ -6,7 +6,32 @@
 {% block content %}
 
 
+       <!-- Display success/error messages -->
+    {% if messages %}
+<div class="message-container"> {# Optional: Wrap messages in a container for easier targeting #}
+    {% for message in messages %}
+    <div class="text-center d-block m-auto w-50 border-0 rounded-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %} message-fade-out">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageElements = document.querySelectorAll('.message-fade-out');
+
+        messageElements.forEach(function(message) {
+            setTimeout(function() {
+                message.style.opacity = '0'; // Start fade out
+                message.style.transition = 'opacity 1s ease-out'; // Add transition for smooth fade
+                setTimeout(function() {
+                    message.remove(); // Remove element after fade out
+                }, 1000); // Match this with the transition duration
+            }, 2000); // 3000 milliseconds = 3 seconds
+        });
+    });
+</script>
 <!-- Events Section -->
 <section id="events" class="events section">
 
@@ -205,54 +230,111 @@
         </div>
 
         <!-- Quick Booking Form -->
-        <div class="col-lg-6" data-aos="slide-left" data-aos-delay="300">
-          <div class="quick-booking-form">
-            <form action="forms/event-booking.php" method="post" class="php-email-form">
-              <h4>Quick Event Inquiry</h4>
-              <div class="row">
-                <div class="col-md-6">
-                  <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
-                </div>
-                <div class="col-md-6">
-                  <input type="email" name="email" class="form-control" placeholder="Your Email" required="">
-                </div>
-                <div class="col-md-6">
-                  <input type="tel" name="phone" class="form-control" placeholder="Phone Number" required="">
-                </div>
-                <div class="col-md-6">
-                  <input type="date" name="date" class="form-control" required="">
-                </div>
-                <div class="col-md-6">
-                  <select name="guest_count" class="form-select" required="">
-                    <option value="">Guest Count</option>
-                    <option value="15-30">15–30 guests</option>
-                    <option value="31-60">31–60 guests</option>
-                    <option value="61-100">61–100 guests</option>
-                    <option value="100+">100+ guests</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <select name="event_type" class="form-select" required="">
-                    <option value="">Event Type</option>
-                    <option value="wedding">Wedding</option>
-                    <option value="corporate">Corporate Event</option>
-                    <option value="birthday">Birthday Party</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-                <div class="col-12">
-                  <textarea name="message" rows="5" class="form-control" placeholder="Tell us about your event..."></textarea>
-                </div>
-                <div class="col-12">
-                  <div class="loading">Loading</div>
-                  <div class="error-message"></div>
-                  <div class="sent-message">Your inquiry has been sent. We'll get back to you soon!</div>
-                  <button type="submit" class="btn-submit">Send Inquiry</button>
-                </div>
-              </div>
-            </form>
-          </div>
+<div class="col-lg-6" data-aos="slide-left" data-aos-delay="300">
+  <div class="quick-booking-form">
+    <form action="{% url 'events' %}" method="post" class="event-booking-form">
+      {% csrf_token %}
+
+      <h4>Quick Event Inquiry</h4>
+
+      <div class="row">
+
+        <!-- Customer Name -->
+        <div class="col-md-6">
+          <input type="text"
+                 name="customer_name"
+                 class="form-control"
+                 placeholder="Your Name"
+                 required>
         </div>
+
+        <!-- Email -->
+        <div class="col-md-6">
+          <input type="email"
+                 name="email"
+                 class="form-control"
+                 placeholder="Your Email"
+                 required>
+        </div>
+
+        <!-- Phone -->
+        <div class="col-md-6">
+          <input type="tel"
+                 name="phone"
+                 class="form-control"
+                 placeholder="Phone Number"
+                 required>
+        </div>
+
+        <!-- Event Date -->
+        <div class="col-md-6">
+          <input type="date"
+                 name="date"
+                 class="form-control"
+                 required>
+        </div>
+
+        <!-- Attendees (NOW CORRECT VALUES) -->
+        <div class="col-md-6">
+          <select name="attendees" class="form-select" required>
+            <option value="">Guest Count</option>
+            <option value="30">15–30 guests</option>
+            <option value="60">31–60 guests</option>
+            <option value="100">61–100 guests</option>
+            <option value="200">100+ guests</option>
+          </select>
+        </div>
+
+        <!-- Event Type (maps as event_name) -->
+        <div class="col-md-6">
+          <select name="event_name" class="form-select" required>
+            <option value="">Event Type</option>
+            <option value="Wedding">Wedding</option>
+            <option value="Corporate Event">Corporate Event</option>
+            <option value="Birthday Party">Birthday Party</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Message -->
+        <div class="col-12">
+          <textarea name="message"
+                    rows="5"
+                    class="form-control"
+                    placeholder="Tell us about your event..."></textarea>
+        </div>
+
+        <!-- Submit -->
+        <div class="col-12 text-center mt-2">
+          <button type="submit" class="btn-submit w-100" id="event-submit-btn">
+            Send Inquiry
+          </button>
+        </div>
+
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Submit Loading Script -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.querySelector(".event-booking-form");
+    const button = document.getElementById("event-submit-btn");
+
+    if (form) {
+        form.addEventListener("submit", function () {
+            button.disabled = true;
+            button.innerHTML = `
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Sending...
+            `;
+        });
+    }
+});
+</script>
+
+
 
       </div>
     </div>

@@ -95,37 +95,46 @@ def profile_view(request):
 
 @login_required(login_url='login')
 def rooms_view(request):
-    rooms = Room.objects.all()
-    available_rooms = []
-
+    rooms = Room.objects.all().order_by('room_number')
     check_in = request.GET.get('check_in')
     check_out = request.GET.get('check_out')
 
-    if check_in and check_out:
-        try:
-            check_in_date = timezone.datetime.strptime(check_in, "%Y-%m-%d").date()
-            check_out_date = timezone.datetime.strptime(check_out, "%Y-%m-%d").date()
+    # No search: return all rooms but with status (occupied/vacant)
+    if not check_in or not check_out:
+        context = {
+            "rooms": rooms,
+            "check_in": "",
+            "check_out": "",
+            "search_mode": False
+        }
+        return render(request, "rooms.html", context)
 
-            for room in rooms:
-                conflicts = RoomBooking.objects.filter(
-                    room=room,
-                    check_in__lte=check_out_date,
-                    check_out__gte=check_in_date
-                )
-                if not conflicts.exists():
-                    available_rooms.append(room)
-        except ValueError:
-            messages.error(request, "Invalid date format. Please use YYYY-MM-DD.")
-            available_rooms = rooms
-    else:
-        available_rooms = rooms
+    # Search mode
+    try:
+        check_in_date = timezone.datetime.strptime(check_in, "%Y-%m-%d").date()
+        check_out_date = timezone.datetime.strptime(check_out, "%Y-%m-%d").date()
+    except ValueError:
+        messages.error(request, "Invalid date format.")
+        return redirect("rooms")
+
+    available_rooms = []
+    for room in rooms:
+        conflict = RoomBooking.objects.filter(
+            room=room,
+            check_in__lte=check_out_date,
+            check_out__gte=check_in_date
+        ).exists()
+
+        if not conflict:
+            available_rooms.append(room)
 
     context = {
-        'rooms': available_rooms,
-        'check_in': check_in,
-        'check_out': check_out
+        "rooms": available_rooms,
+        "check_in": check_in,
+        "check_out": check_out,
+        "search_mode": True
     }
-    return render(request, 'rooms.html', context)
+    return render(request, "rooms.html", context)
 
 @property
 def is_available(self):
@@ -292,8 +301,50 @@ def terms(request):
 def privacy(request):
     return render(request, 'privacy.html')
 
+
 def events(request):
-    return render(request, 'events.html')
+    """
+    Renders the events page and handles event booking form POST.
+    Expect form fields: customer_name, email, phone, date, attendees, message, event_name (optional)
+    """
+    if request.method == "POST":
+        customer_name = request.POST.get("customer_name") or request.POST.get("name")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+        date_str = request.POST.get("date")
+        attendees = request.POST.get("attendees") or request.POST.get("people") or 1
+        message = request.POST.get("message", "")
+        event_name = request.POST.get("event_name", "")
+
+        # basic validation
+        if not (customer_name and email and phone and date_str):
+            messages.error(request, "Please fill all required fields.")
+            return redirect("events")
+
+        try:
+            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except Exception:
+            messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
+            return redirect("events")
+
+        booking = EventBooking.objects.create(
+            user = request.user if request.user.is_authenticated else None,
+            customer_name = customer_name,
+            email = email,
+            phone = phone,
+            date = date_obj,
+            attendees = int(attendees) if str(attendees).isdigit() else 1,
+            message = message,
+            event_name = event_name
+        )
+
+        messages.success(request, "Your event booking has been received! We will contact you soon.")
+        # optionally redirect to a confirmation page or back to events
+        return redirect("events")
+
+    # GET -> render page (you can add upcoming events context if you have an Event model)
+    return render(request, "events.html")
+
 
 def menu(request):
     return render(request, 'menu.html')

@@ -60,3 +60,20 @@ class RoomBooking(models.Model):
             pass
 
         super().save(*args, **kwargs)
+
+# Event booking model
+class EventBooking(models.Model):
+    # optional: if you already have an Event model, change to ForeignKey(Event, on_delete=models.SET_NULL, null=True)
+    event_name = models.CharField(max_length=255, blank=True)   # optional type/slot from the events form
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    customer_name = models.CharField(max_length=255)
+    email = models.EmailField()
+    phone = models.CharField(max_length=30)
+    date = models.DateField()
+    attendees = models.PositiveIntegerField(default=1)
+    message = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_canceled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.customer_name} - {self.event_name or 'Event'} on {self.date}"
