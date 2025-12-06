@@ -1,35 +1,187 @@
 {% extends "starter-page.html" %}
-
-{% block title %}Profile{% endblock %}
+{% block title %}Your Profile{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center">Welcome Back, <strong>{{ request.user.username }}❤</strong></h2>
-    <p class="text-center">Your reservations:</p>
+    <h2 class="text-center mb-4">
+        Welcome Back, <strong>{{ request.user.username }}</strong> ❤
+    </h2>
 
-    {% if reservations %}
-        <table class="table table-striped mt-3">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>People</th>
-                    <th>Message</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in reservations %}
-                <tr>
-                    <td>{{ r.date }}</td>
-                    <td>{{ r.time }}</td>
-                    <td>{{ r.people }}</td>
-                    <td>{{ r.message }}</td>
-                </tr>
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="profileTabs">
+        <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#active">Active Bookings</a></li>
+        <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#history">History</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+        <!-- ================= ACTIVE BOOKINGS ================= -->
+        <div class="tab-pane fade show active" id="active">
+
+            <h4 class="mt-3 text-center"><strong>Room Bookings</strong></h4>
+            {% if active_room_bookings %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>People</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in active_room_bookings %}
+                        <tr>
+                            <td>{{ b.room.room_number }}</td>
+                            <td>{{ b.check_in }}</td>
+                            <td>{{ b.check_out }}</td>
+                            <td>{{ b.people }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted text-center">No active room bookings. Click <a href="/rooms/">here</a> to book.</p>
+            {% endif %}
+
+            <h4 class="mt-4 text-center"><strong>Table Reservations</strong></h4>
+            {% if active_reservations %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>People</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in active_reservations %}
+                        <tr>
+                            <td>{{ r.date }}</td>
+                            <td>{{ r.time }}</td>
+                            <td>{{ r.people }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted text-center">No active reservations. Click <a href="/reservation/">here</a> to make a reservation.</p>
+            {% endif %}
+
+            <h4 class="mt-4 text-center"><strong>Event Bookings</strong></h4>
+            {% if active_event_bookings %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Date</th>
+                            <th>Attendees</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e in active_event_bookings %}
+                        <tr>
+                            <td>{{ e.event_name }}</td>
+                            <td>{{ e.date }}</td>
+                            <td>{{ e.attendees }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-muted text-center">No active event bookings.</p>
+            {% endif %}
+
+        </div>
+
+        <!-- ================= HISTORY ================= -->
+        <div class="tab-pane fade" id="history">
+
+            <h4 class="mt-3 text-center"><strong>Room Booking History</strong></h4>
+            {% if room_history %}
+                {% for month, items in room_history.items %}
+                    <h5><u>{{ month }}</u></h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Room</th>
+                                <th>Check In</th>
+                                <th>Check Out</th>
+                                <th>People</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in items %}
+                            <tr>
+                                <td>{{ b.room.room_number }}</td>
+                                <td>{{ b.check_in }}</td>
+                                <td>{{ b.check_out }}</td>
+                                <td>{{ b.people }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="text-center">You have no reservations yet. Click <a href="/reservation/">here</a> to reserve a table</p>
-    {% endif %}
+            {% else %}
+                <p class="text-muted text-center">No room history yet.</p>
+            {% endif %}
+
+            <h4 class="mt-4 text-center"><strong>Reservation History</strong></h4>
+            {% if reservation_history %}
+                {% for month, items in reservation_history.items %}
+                    <h5><u>{{ month }}</u></h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>People</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in items %}
+                            <tr>
+                                <td>{{ r.date }}</td>
+                                <td>{{ r.time }}</td>
+                                <td>{{ r.people }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center">No past reservations.</p>
+            {% endif %}
+
+            <h4 class="mt-4 text-center"><strong>Event History</strong></h4>
+            {% if event_history %}
+                {% for month, items in event_history.items %}
+                    <h5><u>{{ month }}</u></h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Attendees</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for e in items %}
+                            <tr>
+                                <td>{{ e.event_name }}</td>
+                                <td>{{ e.date }}</td>
+                                <td>{{ e.attendees }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endfor %}
+            {% else %}
+                <p class="text-muted text-center">No event history yet.</p>
+            {% endif %}
+
+        </div>
+
+    </div>
 </div>
 {% endblock %}

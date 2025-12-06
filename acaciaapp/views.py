@@ -85,12 +85,78 @@ def reservations_view(request):
 
 @login_required(login_url='login')
 def profile_view(request):
-    # Get all reservations for this user
-    reservations = Reservation.objects.filter(user=request.user).order_by('-date', '-time')
 
-    return render(request, 'profile.html', {
-        'reservations': reservations
-    })
+    user = request.user
+
+    # ------------------------------
+    # 1. ACTIVE BOOKINGS
+    # ------------------------------
+
+    active_room_bookings = RoomBooking.objects.filter(
+        user=user,
+        is_cleared=False
+    ).order_by('check_in')
+
+    active_reservations = Reservation.objects.filter(
+        user=user,
+        date__gte=timezone.now().date()
+    ).order_by('date', 'time')
+
+    active_event_bookings = EventBooking.objects.filter(
+        user=user,
+        date__gte=timezone.now().date(),
+        is_canceled=False
+    ).order_by('date')
+
+
+    # ------------------------------
+    # 2. HISTORY (GROUPED BY MONTH)
+    # ------------------------------
+
+    from django.db.models.functions import TruncMonth
+
+    # Room history = cleared bookings
+    room_history = RoomBooking.objects.filter(
+        user=user,
+        is_cleared=True
+    ).annotate(month=TruncMonth('check_in')).order_by('-check_in')
+
+    # Reservations history = past dates
+    reservation_history = Reservation.objects.filter(
+        user=user,
+        date__lt=timezone.now().date()
+    ).annotate(month=TruncMonth('date')).order_by('-date')
+
+    # Event history = past or canceled
+    event_history = EventBooking.objects.filter(
+        user=user,
+        date__lt=timezone.now().date()
+    ).annotate(month=TruncMonth('date')).order_by('-date')
+
+    # ------------------------------
+    # GROUP BY MONTH
+    # ------------------------------
+    def group_by_month(qs):
+        grouped = {}
+        for item in qs:
+            month = item.month.strftime("%B %Y")
+            if month not in grouped:
+                grouped[month] = []
+            grouped[month].append(item)
+        return grouped
+
+    context = {
+        "active_room_bookings": active_room_bookings,
+        "active_reservations": active_reservations,
+        "active_event_bookings": active_event_bookings,
+
+        "room_history": group_by_month(room_history),
+        "reservation_history": group_by_month(reservation_history),
+        "event_history": group_by_month(event_history),
+    }
+
+    return render(request, 'profile.html', context)
+
 
 
 @login_required(login_url='login')
@@ -228,20 +294,16 @@ def admin_dashboard(request):
             room.save()
             messages.success(request, f"Room {room.room_number} status updated.")
 
+
         elif 'clear_booking' in request.POST:
+
             booking_id = request.POST.get('booking_id')
+
             booking = RoomBooking.objects.get(id=booking_id)
 
-            # 1. Mark as cleared → moves to "history"
             booking.is_cleared = True
 
-            # 2. Free the room
-            room = booking.room
-            room.is_occupied = False
-            room.save()
-
-            # 3. Save booking changes
-            booking.save()
+            booking.save()  # This now auto-frees room using model logic
 
             messages.success(request, f"Booking for {booking.customer_name} cleared successfully.")
 
@@ -295,12 +357,7 @@ def clear_customer(request, booking_id):
     booking = RoomBooking.objects.get(id=booking_id)
 
     booking.is_cleared = True
-
-    room = booking.room
-    room.is_occupied = False
-    room.save()
-
-    booking.save()
+    booking.save()  # auto frees room & updates related logic
 
     messages.success(request, f"Booking for {booking.customer_name} cleared successfully.")
     return redirect('admin_customers')

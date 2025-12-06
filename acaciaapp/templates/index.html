@@ -96,59 +96,48 @@
 
   </div>
 </header>
- <!-- SUCCESS TOAST (Django Messages) -->
-    {% if messages %}
-    <div id="toast" class="toast hidden">
-      <div class="toast-content">
-        <div class="checkmark-container">
-          <div class="checkmark-circle"></div>
-          <div class="checkmark-stem"></div>
-          <div class="checkmark-kick"></div>
-        </div>
-        <span id="toast-message">
-          {% for message in messages %}
-            {{ message }}
-          {% endfor %}
-        </span>
-      </div>
-    </div>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const toast = document.getElementById("toast");
-
-        // Show toast
-        toast.classList.remove("hidden");
-        setTimeout(() => toast.classList.add("show"), 20);
-
-        // Hide automatically
-        setTimeout(() => {
-          toast.classList.remove("show");
-          setTimeout(() => toast.classList.add("hidden"), 400);
-        }, 3800);
-
-
-      });
-    </script>
-    {% endif %}
-    <!-- END TOAST -->
 
   <main class="main">
 
 <section id="hero" class="hero section light-background">
   <div class="container" data-aos="fade-up" data-aos-delay="100">
     <div class="hero-content">
-      <div class="row align-items-center">
+    <!-- Display success/error messages -->
+    {% if messages %}
+<div class="message-container"> {# Optional: Wrap messages in a container for easier targeting #}
+    {% for message in messages %}
+    <div class="text-center d-block mb-2 m-auto w-50 border-0 rounded-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %} message-fade-out">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const messageElements = document.querySelectorAll('.message-fade-out');
+
+        messageElements.forEach(function(message) {
+            setTimeout(function() {
+                message.style.opacity = '0'; // Start fade out
+                message.style.transition = 'opacity 1s ease-out'; // Add transition for smooth fade
+                setTimeout(function() {
+                    message.remove(); // Remove element after fade out
+                }, 1000); // Match this with the transition duration
+            }, 2000); // 3000 milliseconds = 3 seconds
+        });
+    });
+</script>
+      <div class="row align-items-center">
         <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
           <div class="content">
-            <h1 class="hero-title text-center mb-4">Experience Authentic Kenyan & Continental Cuisine</h1>
-            <p class="hero-subtitle text-justify-custom mb-4">
+            <h1 class="hero-title mb-4">Experience Authentic Kenyan & Continental Cuisine</h1>
+            <p class="hero-subtitle text-justify-custom mb-4 me-2">
               Welcome to Acacia Resort — a serene dining destination in the heart of Wote Town, Makueni.
               Enjoy freshly prepared meals inspired by Kenyan traditions and modern continental flavors, served
               in a relaxing, family-friendly atmosphere.
             </p>
-
             <div class="hero-actions d-flex flex-wrap gap-3 mb-4">
                 <a href="{% if user.is_authenticated %}{% url 'reservation' %}{% else %}{% url 'login' %}?next={% url 'reservation' %}{% endif %}" class="btn btn-primary">Book a Table</a>
 

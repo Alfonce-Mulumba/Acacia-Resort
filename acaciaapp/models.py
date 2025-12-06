@@ -29,6 +29,7 @@ class Room(models.Model):
     def __str__(self):
         return f"Room {self.room_number}"
 
+
 class RoomBooking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
@@ -48,19 +49,24 @@ class RoomBooking(models.Model):
         return f"{self.customer_name} - Room {self.room.room_number}"
 
     def save(self, *args, **kwargs):
-        # Ensure check_in/check_out are date objects
+        # Convert string dates to proper date objects
         if isinstance(self.check_in, str):
             self.check_in = datetime.strptime(self.check_in, "%Y-%m-%d").date()
         if isinstance(self.check_out, str):
             self.check_out = datetime.strptime(self.check_out, "%Y-%m-%d").date()
 
-        # Example validation
-        today = timezone.now().date()
-        if not (self.check_in <= today <= self.check_out):
-            # optional: raise error or skip
-            pass
-
         super().save(*args, **kwargs)
+
+        # AFTER saving → auto-update room status
+        if not self.is_cleared:
+            # If booking is active, room must be marked occupied
+            self.room.is_occupied = True
+        else:
+            # If booking cleared, free the room
+            self.room.is_occupied = False
+
+        self.room.save()
+
 
 # Event booking model
 class EventBooking(models.Model):

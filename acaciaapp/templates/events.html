@@ -1,7 +1,7 @@
 {% extends 'starter-page.html' %}
 {% load static %}
 {% block title %}
-	About Us
+	Events Page - Acacia
 {% endblock %}
 {% block content %}
 
@@ -83,7 +83,7 @@
               </div>
               <h4>Premium Package</h4>
               <div class="package-price">
-                <span class="price">$129</span>
+                <span class="price">KES: 3200</span>
                 <span class="per">per person</span>
               </div>
             </div>
@@ -110,7 +110,7 @@
               </div>
               <h4>Standard Package</h4>
               <div class="package-price">
-                <span class="price">$89</span>
+                <span class="price">KES: 2500</span>
                 <span class="per">per person</span>
               </div>
             </div>
@@ -136,7 +136,7 @@
               </div>
               <h4>Essentials Package</h4>
               <div class="package-price">
-                <span class="price">$59</span>
+                <span class="price">KES: 1500</span>
                 <span class="per">per person</span>
               </div>
             </div>
@@ -192,17 +192,17 @@
       <div class="row">
         <div class="col-lg-6" data-aos="slide-right" data-aos-delay="250">
           <div class="booking-info">
-            <h3>Plan Your Next Event</h3>
+            <h3 class="text-center">Plan Your Next Event</h3>
             <p>Our event specialists are ready to help you organize unforgettable celebrations at Acacia Resort — from intimate gatherings to large receptions.</p>
 
-            <div class="contact-methods">
+            <div class="contact-methods d-block align-items-center m-auto">
               <div class="contact-item">
                 <div class="contact-icon">
                   <i class="bi bi-telephone"></i>
                 </div>
                 <div class="contact-details">
-                  <span class="contact-label">Call Us</span>
-                  <span class="contact-value">+254 712 345 678</span>
+                  <span class="contact-label"><strong>Call Us</strong></span>
+                  <span class="contact-value"><a href="tel:+254746993887">+254 712 345 678</a></span>
                 </div>
               </div>
 
@@ -211,8 +211,8 @@
                   <i class="bi bi-envelope"></i>
                 </div>
                 <div class="contact-details">
-                  <span class="contact-label">Email</span>
-                  <span class="contact-value">events@acaciaresort.co.ke</span>
+                  <span class="contact-label"><strong>Email</strong></span>
+                  <span class="contact-value"><a href="mailto:events@acaciaresort.co.ke">events@acaciaresort.co.ke</a></span>
                 </div>
               </div>
 
@@ -221,7 +221,7 @@
                   <i class="bi bi-clock"></i>
                 </div>
                 <div class="contact-details">
-                  <span class="contact-label">Planning Hours</span>
+                  <span class="contact-label"><strong>Planning Hours</strong></span>
                   <span class="contact-value">Mon–Fri, 9 AM – 6 PM</span>
                 </div>
               </div>
@@ -230,12 +230,12 @@
         </div>
 
         <!-- Quick Booking Form -->
-<div class="col-lg-6" data-aos="slide-left" data-aos-delay="300">
+<div class="col-lg-6 border-0 rounded-5" data-aos="slide-left" data-aos-delay="300">
   <div class="quick-booking-form">
     <form action="{% url 'events' %}" method="post" class="event-booking-form">
       {% csrf_token %}
 
-      <h4>Quick Event Inquiry</h4>
+      <h4><strong>Quick Event Inquiry</strong></h4>
 
       <div class="row">
 
@@ -243,7 +243,7 @@
         <div class="col-md-6">
           <input type="text"
                  name="customer_name"
-                 class="form-control"
+                 class="form-control border-1 rounded-5"
                  placeholder="Your Name"
                  required>
         </div>
@@ -252,7 +252,7 @@
         <div class="col-md-6">
           <input type="email"
                  name="email"
-                 class="form-control"
+                 class="form-control border-1 rounded-5"
                  placeholder="Your Email"
                  required>
         </div>
@@ -261,7 +261,7 @@
         <div class="col-md-6">
           <input type="tel"
                  name="phone"
-                 class="form-control"
+                 class="form-control border-1 rounded-5"
                  placeholder="Phone Number"
                  required>
         </div>
@@ -270,13 +270,13 @@
         <div class="col-md-6">
           <input type="date"
                  name="date"
-                 class="form-control"
+                 class="form-control border-1 rounded-5"
                  required>
         </div>
 
         <!-- Attendees (NOW CORRECT VALUES) -->
-        <div class="col-md-6">
-          <select name="attendees" class="form-select" required>
+        <div class="col-md-6 border-1 rounded-5">
+          <select name="attendees" class="form-select border-1 rounded-5" required>
             <option value="">Guest Count</option>
             <option value="30">15–30 guests</option>
             <option value="60">31–60 guests</option>
@@ -286,8 +286,8 @@
         </div>
 
         <!-- Event Type (maps as event_name) -->
-        <div class="col-md-6">
-          <select name="event_name" class="form-select" required>
+        <div class="col-md-6 border-1 rounded-5">
+          <select name="event_name" class="form-select border-1 rounded-5" required>
             <option value="">Event Type</option>
             <option value="Wedding">Wedding</option>
             <option value="Corporate Event">Corporate Event</option>
@@ -300,13 +300,13 @@
         <div class="col-12">
           <textarea name="message"
                     rows="5"
-                    class="form-control"
+                    class="form-control border-1 rounded-5"
                     placeholder="Tell us about your event..."></textarea>
         </div>
 
         <!-- Submit -->
         <div class="col-12 text-center mt-2">
-          <button type="submit" class="btn-submit w-100" id="event-submit-btn">
+          <button type="submit" class="btn-submit w-50" id="event-submit-btn">
             Send Inquiry
           </button>
         </div>
