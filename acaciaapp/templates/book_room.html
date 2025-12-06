@@ -1,6 +1,18 @@
 {% extends "starter-page.html" %}
 {% block title %}Book Room{% endblock %}
 {% block content %}
+    {% if redirect_to_ticket and ticket_id %}
+<div class="alert alert-success text-center w-50 d-block m-auto">
+    Your room has been successfully booked! Redirecting you to your ticket...
+</div>
+
+<script>
+    setTimeout(function() {
+        window.location.href = "{% url 'ticket_download' ticket_id %}";
+    }, 3000);
+</script>
+{% endif %}
+
 <div class="container mt-5">
     <h2>Book Room {{ room.room_number }}</h2>
 

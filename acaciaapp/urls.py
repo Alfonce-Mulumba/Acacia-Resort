@@ -23,4 +23,6 @@ urlpatterns = [
     path('admin/rooms/toggle/<int:room_id>/', views.toggle_room_status, name='toggle_room_status'),
     path('admin/customers/', views.admin_customers, name='admin_customers'),
     path('admin/customers/clear/<int:booking_id>/', views.clear_customer, name='clear_customer'),
+    path("ticket/<int:ticket_id>/", views.ticket_view, name="ticket_download"),
+
 ]

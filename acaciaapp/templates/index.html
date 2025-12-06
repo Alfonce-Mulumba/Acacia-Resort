@@ -103,32 +103,7 @@
 <section id="hero" class="hero section light-background">
   <div class="container" data-aos="fade-up" data-aos-delay="100">
     <div class="hero-content">
-    <!-- Display success/error messages -->
-    {% if messages %}
-<div class="message-container"> {# Optional: Wrap messages in a container for easier targeting #}
-    {% for message in messages %}
-    <div class="text-center d-block mb-2 m-auto w-50 border-0 rounded-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %} message-fade-out">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const messageElements = document.querySelectorAll('.message-fade-out');
-
-        messageElements.forEach(function(message) {
-            setTimeout(function() {
-                message.style.opacity = '0'; // Start fade out
-                message.style.transition = 'opacity 1s ease-out'; // Add transition for smooth fade
-                setTimeout(function() {
-                    message.remove(); // Remove element after fade out
-                }, 1000); // Match this with the transition duration
-            }, 2000); // 3000 milliseconds = 3 seconds
-        });
-    });
-</script>
       <div class="row align-items-center">
         <div class="col-lg-6" data-aos="fade-right" data-aos-delay="200">
           <div class="content">

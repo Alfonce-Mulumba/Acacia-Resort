@@ -4,34 +4,18 @@
 	Events Page - Acacia
 {% endblock %}
 {% block content %}
-
-
-       <!-- Display success/error messages -->
-    {% if messages %}
-<div class="message-container"> {# Optional: Wrap messages in a container for easier targeting #}
-    {% for message in messages %}
-    <div class="text-center d-block m-auto w-50 border-0 rounded-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %} message-fade-out">
-        {{ message }}
-    </div>
-    {% endfor %}
+{% if redirect_to_ticket and ticket_id %}
+<div class="alert alert-success text-center w-50 d-block m-auto">
+    Your event inquiry was submitted successfully! Redirecting to your ticket...
 </div>
-{% endif %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const messageElements = document.querySelectorAll('.message-fade-out');
-
-        messageElements.forEach(function(message) {
-            setTimeout(function() {
-                message.style.opacity = '0'; // Start fade out
-                message.style.transition = 'opacity 1s ease-out'; // Add transition for smooth fade
-                setTimeout(function() {
-                    message.remove(); // Remove element after fade out
-                }, 1000); // Match this with the transition duration
-            }, 2000); // 3000 milliseconds = 3 seconds
-        });
-    });
+    setTimeout(function() {
+        window.location.href = "{% url 'ticket_download' ticket_id %}";
+    }, 3000);
 </script>
+{% endif %}
+
 <!-- Events Section -->
 <section id="events" class="events section">
 

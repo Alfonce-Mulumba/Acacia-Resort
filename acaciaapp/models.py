@@ -2,6 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime
 from django.utils import timezone
+import uuid
+import random
+import string
+
 
 class Reservation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -84,3 +88,42 @@ class EventBooking(models.Model):
 
     def __str__(self):
         return f"{self.customer_name} - {self.event_name or 'Event'} on {self.date}"
+
+
+def generate_ticket_number():
+    while True:
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        if not Ticket.objects.filter(ticket_number=code).exists():
+            return code
+
+
+class Ticket(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    ticket_number = models.CharField(
+        max_length=20,
+        unique=True,
+        default=generate_ticket_number,
+        editable=False
+    )
+
+    booking_type = models.CharField(max_length=20)  # "room", "reservation", "event"
+
+    # Add these three OPTIONAL relations ↓↓↓
+    room_booking = models.OneToOneField(
+        RoomBooking, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    reservation_booking = models.OneToOneField(
+        Reservation, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    event_booking = models.OneToOneField(
+        EventBooking, on_delete=models.CASCADE, null=True, blank=True
+    )
+
+    pdf_file = models.FileField(upload_to='tickets/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Ticket {self.ticket_number}"
+

@@ -1,0 +1,19 @@
+{% extends "starter-page.html" %}
+{% load static %}
+{% block title %}
+	Print Ticket
+{% endblock %}
+{% block content %}
+<div class="container text-center mt-5">
+
+    <h2>Your Ticket Is Ready 🎫</h2>
+    <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
+    <p>You can download your ticket below:</p>
+
+    <a href="{{ ticket.pdf_file.url }}" class="btn btn-primary rounded-pill px-4 py-2" download>
+        Download Ticket (PDF)
+    </a>
+
+    <p class="mt-4 text-muted">A copy has also been sent to your email.</p>
+</div>
+{% endblock %}

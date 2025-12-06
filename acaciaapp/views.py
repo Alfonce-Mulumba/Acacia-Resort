@@ -11,6 +11,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.db.models import Q
 from .forms import RegisterForm
+from .utils import generate_ticket_pdf, email_ticket
+
 
 # Registration
 def register_view(request):
@@ -67,9 +69,9 @@ def reservations_view(request):
         message = request.POST.get("message")
         phone = request.POST.get("phone")
 
-        Reservation.objects.create(
+        booking = Reservation.objects.create(
             user=request.user,
-            reserved_name=request.user.get_full_name() or request.user.username,  # 🔥 Better name
+            reserved_name=request.user.get_full_name() or request.user.username,
             email=request.user.email,
             phone=phone,
             people=people,
@@ -77,11 +79,26 @@ def reservations_view(request):
             time=time,
             message=message
         )
-        messages.success(request, 'Your reservation has been successfully booked!')
-        return redirect("reservation")  # 🔥 FIXED: use URL name
+
+        # Create Ticket
+        ticket = Ticket.objects.create(
+            user=request.user,
+            booking_type="reservation",
+            reservation_booking=booking
+        )
+
+        pdf_path = generate_ticket_pdf(ticket)
+        ticket.pdf_file.name = f"tickets/Ticket_{ticket.ticket_number}.pdf"
+        ticket.save()
+
+        email_ticket(ticket, pdf_path)
+
+        return render(request, "reservation.html", {
+            "redirect_to_ticket": True,
+            "ticket_id": ticket.id
+        })
 
     return render(request, 'reservation.html')
-
 
 @login_required(login_url='login')
 def profile_view(request):
@@ -228,7 +245,7 @@ def book_room_view(request, room_id):
         check_out = request.POST.get('check_out')
         message = request.POST.get('message')
 
-        # Conflict check
+        # Check availability
         conflicting = RoomBooking.objects.filter(
             room=room,
             check_in__lte=check_out,
@@ -239,7 +256,7 @@ def book_room_view(request, room_id):
             return redirect('rooms')
 
         # Create booking
-        RoomBooking.objects.create(
+        booking = RoomBooking.objects.create(
             user=request.user,
             room=room,
             customer_name=customer_name,
@@ -253,12 +270,30 @@ def book_room_view(request, room_id):
             message=message
         )
 
-        messages.success(request, "Your room has been successfully booked!")
-        return redirect('rooms')
+        # Create Ticket
+        from .models import Ticket
+        from .utils import generate_ticket_pdf, email_ticket
+
+        ticket = Ticket.objects.create(
+            user=request.user,
+            booking_type="room",
+            room_booking=booking
+        )
+
+        pdf_path = generate_ticket_pdf(ticket)
+        ticket.pdf_file.name = f"tickets/Ticket_{ticket.ticket_number}.pdf"
+        ticket.save()
+
+        # Email suppressed for now due to console backend
+        email_ticket(ticket, pdf_path)
+
+        return render(request, "book_room.html", {
+            "room": room,
+            "redirect_to_ticket": True,
+            "ticket_id": ticket.id
+        })
 
     return render(request, 'book_room.html', {'room': room})
-
-
 
 # Admin Dashboard
 @staff_member_required(login_url='login')
@@ -363,6 +398,14 @@ def clear_customer(request, booking_id):
     return redirect('admin_customers')
 
 
+@login_required
+def ticket_view(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id, user=request.user)
+
+    return render(request, "ticket_view.html", {
+        "ticket": ticket
+    })
+
 def index(request):
     return render(request, 'index.html')
 
@@ -374,48 +417,51 @@ def privacy(request):
 
 
 def events(request):
-    """
-    Renders the events page and handles event booking form POST.
-    Expect form fields: customer_name, email, phone, date, attendees, message, event_name (optional)
-    """
     if request.method == "POST":
         customer_name = request.POST.get("customer_name") or request.POST.get("name")
         email = request.POST.get("email")
         phone = request.POST.get("phone")
         date_str = request.POST.get("date")
-        attendees = request.POST.get("attendees") or request.POST.get("people") or 1
+        attendees = request.POST.get("attendees") or 1
         message = request.POST.get("message", "")
         event_name = request.POST.get("event_name", "")
 
-        # basic validation
         if not (customer_name and email and phone and date_str):
-            messages.error(request, "Please fill all required fields.")
+            messages.error(request, "Please fill in all required fields.")
             return redirect("events")
 
-        try:
-            date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
-        except Exception:
-            messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
-            return redirect("events")
+        date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()
 
         booking = EventBooking.objects.create(
-            user = request.user if request.user.is_authenticated else None,
-            customer_name = customer_name,
-            email = email,
-            phone = phone,
-            date = date_obj,
-            attendees = int(attendees) if str(attendees).isdigit() else 1,
-            message = message,
-            event_name = event_name
+            user=request.user if request.user.is_authenticated else None,
+            customer_name=customer_name,
+            email=email,
+            phone=phone,
+            date=date_obj,
+            attendees=int(attendees) if attendees.isdigit() else 1,
+            message=message,
+            event_name=event_name
         )
 
-        messages.success(request, "Your event booking has been received! We will contact you soon.")
-        # optionally redirect to a confirmation page or back to events
-        return redirect("events")
+        # Create ticket
+        ticket = Ticket.objects.create(
+            user=request.user if request.user.is_authenticated else None,
+            booking_type="event",
+            event_booking=booking
+        )
 
-    # GET -> render page (you can add upcoming events context if you have an Event model)
+        pdf_path = generate_ticket_pdf(ticket)
+        ticket.pdf_file.name = f"tickets/Ticket_{ticket.ticket_number}.pdf"
+        ticket.save()
+
+        email_ticket(ticket, pdf_path)
+
+        return render(request, "events.html", {
+            "redirect_to_ticket": True,
+            "ticket_id": ticket.id
+        })
+
     return render(request, "events.html")
-
 
 def menu(request):
     return render(request, 'menu.html')
