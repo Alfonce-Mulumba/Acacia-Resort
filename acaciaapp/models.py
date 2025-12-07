@@ -96,9 +96,9 @@ def generate_ticket_number():
         if not Ticket.objects.filter(ticket_number=code).exists():
             return code
 
-
 class Ticket(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
     ticket_number = models.CharField(
         max_length=20,
         unique=True,
@@ -108,7 +108,7 @@ class Ticket(models.Model):
 
     booking_type = models.CharField(max_length=20)  # "room", "reservation", "event"
 
-    # Add these three OPTIONAL relations ↓↓↓
+    # Existing relations (unchanged)
     room_booking = models.OneToOneField(
         RoomBooking, on_delete=models.CASCADE, null=True, blank=True
     )
@@ -124,6 +124,30 @@ class Ticket(models.Model):
     pdf_file = models.FileField(upload_to='tickets/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # ===========================
+    # NEW FIELDS (SAFE CHANGES)
+    # ===========================
+
+    # Ticket is active by default. Becomes inactive after validation/check-in.
+    is_active = models.BooleanField(default=True)
+
+    # Store the timestamp when a ticket was validated/checked-in.
+    cleared_at = models.DateTimeField(null=True, blank=True)
+
+    # ===========================
+    # HELPER METHOD
+    # ===========================
+    def belongs_to(self):
+        """Returns the correct related booking object."""
+        if self.booking_type == "room":
+            return self.room_booking
+        if self.booking_type == "reservation":
+            return self.reservation_booking
+        if self.booking_type == "event":
+            return self.event_booking
+        return None
+
     def __str__(self):
         return f"Ticket {self.ticket_number}"
+
 

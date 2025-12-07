@@ -301,54 +301,120 @@ def admin_dashboard(request):
     rooms = Room.objects.all().order_by('room_number')
     room_bookings = RoomBooking.objects.filter(is_cleared=False).order_by('-check_in')
     table_reservations = Reservation.objects.all().order_by('-date', '-time')
+    event_bookings = EventBooking.objects.all().order_by('-date', '-created_at')
 
-    # Handle room CRUD actions
+    validation_result = None  # <<< IMPORTANT
+
+    # ---------------------------
+    # HANDLE ROOM AND BOOKING ACTIONS
+    # ---------------------------
     if request.method == "POST":
+
+        # --- CREATE ROOM ---
         if 'create_room' in request.POST:
             room_number = request.POST.get('room_number')
-            capacity = request.POST.get('capacity')
-            price = request.POST.get('price')
-            description = request.POST.get('description')
-            image = request.FILES.get('image')
             if Room.objects.filter(room_number=room_number).exists():
                 messages.error(request, f"Room {room_number} already exists!")
             else:
                 Room.objects.create(
                     room_number=room_number,
-                    capacity=capacity,
-                    price=price,
-                    description=description,
-                    image=image
+                    capacity=request.POST.get('capacity'),
+                    price=request.POST.get('price'),
+                    description=request.POST.get('description'),
+                    image=request.FILES.get('image')
                 )
                 messages.success(request, f"Room {room_number} created successfully!")
 
+        # --- TOGGLE ROOM ---
         elif 'toggle_room' in request.POST:
-            room_id = request.POST.get('room_id')
-            room = Room.objects.get(id=room_id)
+            room = Room.objects.get(id=request.POST.get('room_id'))
             room.is_occupied = not room.is_occupied
             room.save()
             messages.success(request, f"Room {room.room_number} status updated.")
 
-
+        # --- CLEAR ROOM BOOKING ---
         elif 'clear_booking' in request.POST:
-
-            booking_id = request.POST.get('booking_id')
-
-            booking = RoomBooking.objects.get(id=booking_id)
-
+            booking = RoomBooking.objects.get(id=request.POST.get('booking_id'))
             booking.is_cleared = True
-
-            booking.save()  # This now auto-frees room using model logic
-
+            booking.save()
             messages.success(request, f"Booking for {booking.customer_name} cleared successfully.")
 
+        # --- VALIDATE TICKET ---
+        elif 'validate_ticket' in request.POST:
+            code = request.POST.get('ticket_number').strip().upper()
+
+            try:
+                ticket = Ticket.objects.get(ticket_number=code)
+
+                # Get customer name from booking type
+                if ticket.booking_type == "room":
+                    customer = ticket.room_booking.customer_name
+                    check_in = ticket.room_booking.check_in
+                    check_out = ticket.room_booking.check_out
+
+                elif ticket.booking_type == "reservation":
+                    customer = ticket.reservation_booking.reserved_name
+                    check_in = None
+                    check_out = None
+
+                elif ticket.booking_type == "event":
+                    customer = ticket.event_booking.customer_name
+                    check_in = None
+                    check_out = None
+
+                validation_result = {
+                    "status": "inactive" if not ticket.is_active else "active",
+                    "ticket_number": ticket.ticket_number,
+                    "customer": customer,
+                    "booking_type": ticket.booking_type,
+                    "check_in": check_in,
+                    "check_out": check_out,
+                    "ticket_id": ticket.id,
+                    "cleared_at": ticket.cleared_at,
+                }
+
+            except Ticket.DoesNotExist:
+                validation_result = {"status": "not_found"}
+
+
+        # --- CLEAR TICKET ---
+        elif "clear_ticket" in request.POST:
+            ticket = Ticket.objects.get(id=request.POST.get("clear_ticket"))
+            ticket.is_active = False
+            ticket.cleared_at = timezone.now()
+            ticket.save()
+            messages.success(request, "Ticket successfully cleared.")
+            return redirect("admin_dashboard")
+
     context = {
-        'rooms': rooms,
-        'room_bookings': room_bookings,
-        'table_reservations': table_reservations
+        "rooms": rooms,
+        "room_bookings": room_bookings,
+        "table_reservations": table_reservations,
+        "event_bookings": event_bookings,
+        "validation_result": validation_result,   # <<< CRUCIAL
     }
+
     return render(request, 'admindashboard.html', context)
 
+
+@staff_member_required(login_url='login')
+def admin_edit_room(request, room_id):
+    room = get_object_or_404(Room, id=room_id)
+
+    if request.method == "POST":
+        room.room_number = request.POST.get("room_number")
+        room.capacity = request.POST.get("capacity")
+        room.price = request.POST.get("price")
+        room.description = request.POST.get("description")
+
+        if request.FILES.get("image"):
+            room.image = request.FILES.get("image")
+
+        room.save()
+        messages.success(request, "Room updated successfully!")
+        return redirect("admin_dashboard")
+
+    return render(request, "admin_edit_room.html", {"room": room})
 
 # Reservations
 @staff_member_required(login_url='login')

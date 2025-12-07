@@ -2,179 +2,428 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
+<style>
+/* Visual improvements */
+.admin-title { font-size: 32px; font-weight: 700; }
+.nav-tabs-rounded { border-radius: 0.6rem; overflow: hidden; border: 1px solid #e9ecef; }
+.nav-tabs-rounded .nav-link { border-radius: 0; padding: 0.75rem 1rem; }
+.nav-tabs-rounded .nav-link.active { background: #fff; border-bottom-color: transparent; }
+.tab-pane { padding-top: 1.25rem; padding-bottom: 1.25rem; }
+
+/* Tables */
+.table-improved { border-radius: 0.6rem; overflow: hidden; border: 1px solid #e9ecef; }
+.table-improved thead { background: #f8f9fa; }
+.table-improved tbody tr:hover { background: #fbfcff; }
+
+/* Buttons - compact and consistent */
+.btn-crud { padding: .375rem .6rem; border-radius: .5rem; }
+.btn-small { font-size: .85rem; padding: .35rem .6rem; }
+
+/* Message fade */
+.message-fade-out { transition: opacity 0.9s ease-out; }
+
+/* Validation search card layout */
+.validate-card { max-width: 920px; margin: 0 auto; }
+.validate-search { display:flex; gap:.5rem; align-items:center; }
+.validate-result-row { display:flex; gap:1rem; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+.validate-field { min-width: 140px; text-align:center; }
+
+/* Keep headings centered */
+.section-heading { text-align:center; font-weight:700; margin-bottom:1rem; }
+</style>
+
 <div class="container my-5">
-    <h1 class="text-center mb-2"><strong>Admin Dashboard</strong></h1>
+    <h1 class="admin-title text-center mb-3">Admin Dashboard</h1>
 
-    <!-- Display success/error messages -->
+    <!-- Success/Error messages -->
     {% if messages %}
-<div class="message-container"> {# Optional: Wrap messages in a container for easier targeting #}
-    {% for message in messages %}
-    <div class="text-center d-block m-auto w-50 border-0 rounded-5 alert {% if message.tags %}alert-{{ message.tags }}{% endif %} message-fade-out">
-        {{ message }}
+    <div class="mb-3">
+        {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %} text-center mx-auto w-75 message-fade-out">
+            {{ message }}
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const messageElements = document.querySelectorAll('.message-fade-out');
-
-        messageElements.forEach(function(message) {
-            setTimeout(function() {
-                message.style.opacity = '0'; // Start fade out
-                message.style.transition = 'opacity 1s ease-out'; // Add transition for smooth fade
-                setTimeout(function() {
-                    message.remove(); // Remove element after fade out
-                }, 1000); // Match this with the transition duration
-            }, 2000); // 3000 milliseconds = 3 seconds
-        });
-    });
-</script>
+    {% endif %}
 
     <!-- Tabs -->
-    <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+    <ul class="nav nav-tabs nav-tabs-border rounded-5 mb-4" id="adminTabs" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" id="rooms-tab" data-bs-toggle="tab" href="#rooms" role="tab">Rooms</a>
+        <a class="nav-link {% if active_tab == 'rooms' or not active_tab %}active{% endif %}"
+           id="rooms-tab" data-bs-toggle="tab" href="#rooms" role="tab">Rooms</a>
       </li>
+
       <li class="nav-item">
-        <a class="nav-link" id="bookings-tab" data-bs-toggle="tab" href="#bookings" role="tab">Room Bookings</a>
+        <a class="nav-link {% if active_tab == 'bookings' %}active{% endif %}"
+           id="bookings-tab" data-bs-toggle="tab" href="#bookings" role="tab">Room Bookings</a>
       </li>
+
       <li class="nav-item">
-        <a class="nav-link" id="reservations-tab" data-bs-toggle="tab" href="#reservations" role="tab">Table Reservations</a>
+        <a class="nav-link {% if active_tab == 'reservations' %}active{% endif %}"
+           id="reservations-tab" data-bs-toggle="tab" href="#reservations" role="tab">Table Reservations</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'events' %}active{% endif %}"
+           id="events-tab" data-bs-toggle="tab" href="#events" role="tab">Event Bookings</a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link {% if active_tab == 'validate' %}active{% endif %}"
+           id="validate-tab" data-bs-toggle="tab" href="#validate" role="tab">Validate Ticket</a>
       </li>
     </ul>
 
     <div class="tab-content" id="adminTabContent">
-      <!-- Rooms Tab -->
-      <div class="tab-pane fade show active" id="rooms" role="tabpanel">
-          <h3 class="text-center">Add Room</h3>
-          <form method="POST" enctype="multipart/form-data">
-              {% csrf_token %}
-              <input type="hidden" name="create_room">
-              <div class="row">
-                  <div class="col-md-2"><input class="form-control mb-2 border-1 rounded-4" name="room_number" placeholder="Room #" required></div>
-                  <div class="col-md-2"><input class="form-control mb-2 border-1 rounded-4" name="capacity" placeholder="Capacity" type="number" required></div>
-                  <div class="col-md-2"><input class="form-control mb-2 border-1 rounded-4" name="price" placeholder="Price (KES)" type="number" step="0.01" required></div>
-                  <div class="col-md-4"><input class="form-control mb-2 border-1 rounded-4" name="description" placeholder="Description" required></div>
-                  <div class="col-md-2"><input class="form-control mb-2 border-1 rounded-4" name="image" type="file" required></div>
-              </div>
-              <button class="btn btn-outline-primary border-2 rounded-5" type="submit">Add</button>
-          </form>
+      <!-- ROOMS -->
+      <div class="tab-pane fade {% if active_tab == 'rooms' or not active_tab %}show active{% endif %}" id="rooms" role="tabpanel">
 
-          <h3 class="text-center"><strong><u>~All Rooms~</u></strong></h3>
-          <table class="table table-striped">
-              <thead>
-                  <tr>
-                      <th>Room #</th>
-                      <th>Capacity</th>
-                      <th>Price (KES)</th>
-                      <th>Description</th>
-                      <th>Occupied</th>
-                      <th>Actions</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for room in rooms %}
-                  <tr>
-                      <td>{{ room.room_number }}</td>
-                      <td>{{ room.capacity }}</td>
-                      <td>{{ room.price }}</td>
-                      <td>{{ room.description }}</td>
-                      <td>{{ room.is_occupied|yesno:"Yes,No" }}</td>
-                      <td>
-                          <form method="POST" style="display:inline;">
-                              {% csrf_token %}
-                              <input type="hidden" name="toggle_room" value="1">
-                              <input type="hidden" name="room_id" value="{{ room.id }}">
-                              <button class="btn btn-danger btn-sm border-0 rounded-5" type="submit">
-                                  {% if room.is_occupied %}Mark Vacant{% else %}Mark Occupied{% endif %}
-                              </button>
-                          </form>
-                      </td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      </div>
+         <form method="POST" enctype="multipart/form-data" class="mx-auto mb-3" style="max-width:1000px;">
+    {% csrf_token %}
+    <input type="hidden" name="active_tab" value="rooms">
+    <input type="hidden" name="create_room" value="1">
+<h3 class="text-center fw-medium mt-0"><u><i>Add Room</i></u></h3>
+    <div class="row g-2 align-items-center d-flex">
+        <div class="col-md-2">
+            <input class="form-control border-1 rounded-5" name="room_number" placeholder="Room #" required>
+        </div>
 
-      <!-- Room Bookings Tab -->
-      <div class="tab-pane fade" id="bookings" role="tabpanel">
-          <h3 class="text-center">~Booked Rooms~</h3>
-          <table class="table table-striped">
-              <thead>
-                  <tr>
+        <div class="col-md-2">
+            <input class="form-control border-1 rounded-5" name="capacity" placeholder="Capacity" type="number" required>
+        </div>
 
-                      <th>Room #</th>
-                      <th>Name</th>
-                      <th>Check-In</th>
-                      <th>Check-Out</th>
-                      <th>Cleared</th>
-                      <th>Actions</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for booking in room_bookings %}
-                  <tr>
+        <div class="col-md-2">
+            <input class="form-control border-1 rounded-5" name="price" placeholder="Price (KES)" type="number" step="0.01" required>
+        </div>
 
-                      <td>{{ booking.room.room_number }}</td>
-                      <td>{{ booking.customer_name }}</td>
-                      <td>{{ booking.check_in }}</td>
-                      <td>{{ booking.check_out }}</td>
-                      <td>{{ booking.is_cleared|yesno:"Yes,No" }}</td>
-                      <td>
-                          {% if not booking.is_cleared %}
-                          <form method="POST" style="display:inline;">
-                              {% csrf_token %}
-                              <input type="hidden" name="clear_booking" value="1">
-                              <input type="hidden" name="booking_id" value="{{ booking.id }}">
-                              <button class="btn btn-danger btn-sm" type="submit">Clear</button>
-                          </form>
-                          {% endif %}
-                      </td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      </div>
+        <div class="col-md-3">
+            <input class="form-control border-1 rounded-5" name="description" placeholder="Description" required>
+        </div>
 
-      <!-- Table Reservations Tab -->
-      <div class="tab-pane fade" id="reservations" role="tabpanel">
-          <h3 class="text-center">~Reservations~</h3>
-          <table class="table table-striped">
-              <thead>
-                  <tr>
-                      <th>Name</th>
-                      <th>People</th>
-                      <th>Date</th>
-                      <th>Time</th>
-                      <th>Message</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for res in table_reservations %}
-                  <tr>
-                      <td>{{ res.reserved_name }}</td>
-                      <td>{{ res.people }}</td>
-                      <td>{{ res.date }}</td>
-                      <td>{{ res.time }}</td>
-                      <td>{{ res.message }}</td>
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-      </div>
+        <div class="col-md-2">
+            <input class="form-control border-1 rounded-5" name="image" type="file">
+        </div>
+
+        <!-- Add Room Button aligned right on the same row -->
+        <div class="col-md-1 d-flex justify-content-end">
+            <button class="btn btn-primary btn-crud border-0 rounded-5 w-100" type="submit">
+                Add
+            </button>
+        </div>
+    </div>
+</form>
+
+
+<div class="table-wrapper rounded-5 border bg-white overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 table-bordered inner-bordered">
+            <thead class="table-light text-center">
+                <tr>
+                    <th>Room #</th>
+                    <th>Capacity</th>
+                    <th>Price (KES)</th>
+                    <th>Description</th>
+                    <th>Occupied</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for room in rooms %}
+                <tr>
+                    <td class="text-center">{{ room.room_number }}</td>
+                    <td class="text-center">{{ room.capacity }}</td>
+                    <td class="text-center">{{ room.price }}</td>
+                    <td>{{ room.description }}</td>
+                    <td class="text-center">{{ room.is_occupied|yesno:"Yes,No" }}</td>
+                    <td class="text-center">
+
+                        <!-- DROPDOWN -->
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-outline-success border-1 rounded-5 dropdown-toggle btn-sm px-3"
+                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Action
+                            </button>
+
+                            <ul class="dropdown-menu bg-body border-0 text-center rounded-4 p-1">
+                                <li>
+                                    <form method="POST" class="m-0 p-0">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="active_tab" value="rooms">
+                                        <input type="hidden" name="toggle_room" value="1">
+                                        <input type="hidden" name="room_id" value="{{ room.id }}">
+
+                                        <button type="submit"
+                                            class="dropdown-item text-danger text-center border-0 fw-light"
+                                            style="background:none !important; box-shadow:none !important;">
+                                            {% if room.is_occupied %}
+                                                Mark Vacant
+                                            {% else %}
+                                                Mark Occupied
+                                            {% endif %}
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <a href="{% url 'admin_edit_room' room.id %}"
+                           class="btn btn-outline-primary rounded-5 btn-small">
+                           Edit
+                        </a>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
+
+      </div>
+
+      <!-- ROOM BOOKINGS -->
+     <div class="tab-pane fade {% if active_tab == 'bookings' %}show active{% endif %}"
+     id="bookings" role="tabpanel">
+    <!-- Rounded Table Wrapper -->
+    <div class="table-wrapper rounded-5 border bg-white overflow-hidden mt-3">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 table-bordered inner-bordered">
+                <thead class="table-light text-center">
+                    <tr>
+                        <td><strong>Room #</strong></td>
+                        <td><strong>Name</strong></td>
+                        <td><strong>Check-In</strong></td>
+                        <td><strong>Check-Out</strong></td>
+                        <td><strong>Cleared</strong></td>
+                        <td class="text-center"><strong>Actions</strong></td>
+                    </tr>
+                </thead>
+
+                <tbody class="text-center">
+                    {% for booking in room_bookings %}
+                    <tr>
+                        <td>{{ booking.room.room_number }}</td>
+                        <td>{{ booking.customer_name }}</td>
+                        <td>{{ booking.check_in }}</td>
+                        <td>{{ booking.check_out }}</td>
+
+                        <td>
+                            {% if booking.is_cleared %}
+                                <span class="badge bg-success rounded-pill px-3 py-2">Yes</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2">No</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center">
+
+                            {% if not booking.is_cleared %}
+                            <form method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="active_tab" value="bookings">
+                                <input type="hidden" name="clear_booking" value="1">
+                                <input type="hidden" name="booking_id" value="{{ booking.id }}">
+
+                                <button class="btn btn-danger btn-medium border-0 rounded-5" type="submit">
+                                    Clear
+                                </button>
+                            </form>
+                            {% else %}
+                                <span class="text-muted small">✔ Already Cleared</span>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+      <!-- RESERVATIONS -->
+      <div class="tab-pane fade {% if active_tab == 'reservations' %}show active{% endif %}"
+     id="reservations" role="tabpanel">
+    <!-- Rounded Table Wrapper -->
+    <div class="table-wrapper rounded-5 border bg-white overflow-hidden mt-3">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 table-bordered inner-bordered">
+                <thead class="table-light">
+                    <tr class="text-center">
+                        <td><strong>Name</strong></td>
+                        <td><strong>People</strong></td>
+                        <td><strong>Date</strong></td>
+                        <td><strong>Time</strong></td>
+                        <td><strong>Message</strong></td>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for res in table_reservations %}
+                    <tr>
+                        <td>{{ res.reserved_name }}</td>
+                        <td>{{ res.people }}</td>
+                        <td>{{ res.date }}</td>
+                        <td>{{ res.time }}</td>
+                        <td>{{ res.message|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+      <!-- EVENTS -->
+      <div class="tab-pane fade {% if active_tab == 'events' %}show active{% endif %}" id="events" role="tabpanel">
+          <h3 class="section-heading">~Event Bookings~</h3>
+          <div class="table-responsive table-improved table-bordered">
+              <table class="table table-hover mb-0">
+                  <thead>
+                      <tr>
+
+                          <th>Customer</th>
+                          <th>Email</th>
+                          <th>Phone</th>
+                          <th>Event Name</th>
+                          <th>Date</th>
+                          <th>Attendees</th>
+                          <th>Message</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for e in event_bookings %}
+                      <tr>
+
+                          <td>{{ e.customer_name }}</td>
+                          <td>{{ e.email }}</td>
+                          <td>{{ e.phone }}</td>
+                          <td>{{ e.event_name|default:"N/A" }}</td>
+                          <td>{{ e.date }}</td>
+                          <td>{{ e.attendees }}</td>
+                          <td>{{ e.message|default:"-" }}</td>
+                      </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
+      <!-- VALIDATE TICKET -->
+      <div class="tab-pane fade {% if active_tab == 'validate' %}show active{% endif %}" id="validate" role="tabpanel">
+          <h3 class="section-heading">Ticket Validation</h3>
+
+          <div class="card p-3 validate-card border-0 mb-3">
+              <!-- SEARCH BOX ON TOP -->
+              <form method="POST" class="form-control validate-search border-0 justify-content-center" style="width:100%;">
+                  {% csrf_token %}
+                  <input type="hidden" name="active_tab" value="validate">
+                  <input type="hidden" name="validate_ticket" value="1">
+
+                  <input type="text" name="ticket_number" class="form-control w-50 rounded-4" placeholder="Enter Ticket Number" required>
+                  <button class="btn btn-primary btn-crud border-0 rounded-5" type="submit">Validate</button>
+              </form>
+
+              <!-- RESULT APPEARS BELOW IN A SINGLE ROW / TABLE-LIKE LAYOUT -->
+              {% if validation_result %}
+<div class="mt-3">
+
+    <!-- ❌ NOT FOUND -->
+    {% if validation_result.status == "not_found" %}
+        <div class="alert text-danger text-center w-100 bg-transparent mb-0">
+            Ticket not found.
+        </div>
+
+    <!-- ⚠️ INACTIVE -->
+    {% elif validation_result.status == "inactive" %}
+        <div class="alert text-warning text-center w-100 bg-transparent mb-0">
+            Ticket {{ validation_result.ticket_number }} already cleared — Cleared at: {{ validation_result.cleared_at }}
+        </div>
+
+    <!-- ✅ ACTIVE TICKET -->
+    {% elif validation_result.status == "active" %}
+
+    <table class="table table-striped rounded-5 mt-3 w-100 mx-auto bg-white shadow-sm">
+    <thead class="table-light">
+        <tr>
+            <td><strong>Ticket Number</strong></td>
+            <td><strong>Customer Name</strong></td>
+            <td><strong>Booking Type</strong></td>
+            <td><strong>Status</strong></td>
+            {% if validation_result.check_in %}
+            <td><strong>Check-In</strong></td>
+            {% endif %}
+            {% if validation_result.check_out %}
+            <td><strong>Check-Out</strong></td>
+            {% endif %}
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>{{ validation_result.ticket_number }}</td>
+            <td>{{ validation_result.customer }}</td>
+            <td>{{ validation_result.booking_type|capfirst }}</td>
+            {% if validation_result.check_in %}
+            <td>{{ validation_result.check_in }}</td>
+            {% endif %}
+
+            {% if validation_result.check_out %}
+            <td>{{ validation_result.check_out }}</td>
+            {% endif %}
+            <td>
+                {% if validation_result.status == "active" %}
+                    <span class="badge bg-success px-3 py-2 rounded-pill">Active</span>
+                {% else %}
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill">Inactive</span>
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- CLEAR BUTTON CENTERED -->
+<form method="POST" class="text-center mt-3">
+    {% csrf_token %}
+    <input type="hidden" name="active_tab" value="validate">
+    <input type="hidden" name="clear_ticket" value="{{ validation_result.ticket_id }}">
+    <button class="btn btn-danger border-0 rounded-5 px-4 py-2">
+        Mark as Cleared
+    </button>
+</form>
+    {% endif %}
+</div>
+{% endif %}
+
+          </div>
+      </div>
+
+    </div> <!-- /tab-content -->
+</div>
+
+<!-- bootstrap tab behaviour (keeps native activation working) -->
 <script>
-    var triggerTabList = [].slice.call(document.querySelectorAll('#adminTabs a'))
-    triggerTabList.forEach(function (triggerEl) {
-        var tabTrigger = new bootstrap.Tab(triggerEl)
-        triggerEl.addEventListener('click', function (event) {
-            event.preventDefault()
-            tabTrigger.show()
-        })
-    })
+    // No forced JS activation — rely on server-side active_tab for persistence.
+    // But keep client-side to allow switching without reload.
+    document.querySelectorAll('#adminTabs a').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            var t = new bootstrap.Tab(el);
+            t.show();
+        });
+    });
+
+    // fade out messages
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.querySelectorAll('.message-fade-out').forEach(function(m) {
+                m.style.opacity = '0';
+                setTimeout(function(){ m.remove(); }, 900);
+            });
+        }, 2200);
+    });
 </script>
 {% endblock %}

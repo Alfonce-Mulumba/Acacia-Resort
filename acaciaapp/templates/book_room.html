@@ -1,67 +1,113 @@
 {% extends "starter-page.html" %}
 {% block title %}Book Room{% endblock %}
+
 {% block content %}
-    {% if redirect_to_ticket and ticket_id %}
-<div class="alert alert-success text-center w-50 d-block m-auto">
-    Your room has been successfully booked! Redirecting you to your ticket...
+
+<!-- Success + auto-redirect -->
+{% if redirect_to_ticket and ticket_id %}
+<div class="alert alert-success text-center w-50 d-block m-auto mt-4 fade show">
+    <strong>Success!</strong> Your room has been booked.<br>
+    Redirecting you to your ticket…
 </div>
 
 <script>
-    setTimeout(function() {
+    setTimeout(function () {
         window.location.href = "{% url 'ticket_download' ticket_id %}";
     }, 3000);
 </script>
 {% endif %}
 
-<div class="container mt-5">
-    <h2>Book Room {{ room.room_number }}</h2>
+<div class="container  border-0 rounded-5 mt-5 mb-5">
 
-    <form method="POST" class="row g-3">
-        {% csrf_token %}
-        <div class="col-md-6 w-25 m-auto">
-            <label class="form-label">Full Name</label>
-            <input type="text" class="form-control border-1 rounded-5" name="customer_name" required>
-        </div>
+    <!-- CARD -->
+    <div class="card shadow-lg border-0 rounded-5 mx-auto" style="max-width: 700px;">
 
-        <div class="col-md-6 w-25 m-auto">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-control border-1 rounded-5" name="email" required>
+        <!-- HEADER -->
+        <div class="card-header bg-light text-dark text-center border-0 rounded-top-5 py-4">
+            <h2 class="mb-0 text-primary"><strong>Book Room {{ room.room_number }}</strong></h2>
+            <p class="mb-0 small opacity-75">Fill in the details below to complete your booking</p>
         </div>
 
-        <div class="col-md-6 w-25 m-auto">
-            <label class="form-label">Phone</label>
-            <input type="text" class="form-control border-1 rounded-5" name="phone" required>
+        <!-- FORM BODY -->
+        <div class="card-body p-4">
+
+            <form method="POST" class="row g-4">
+                {% csrf_token %}
+
+                <!-- Name -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Full Name</label>
+                    <input type="text" class="form-control border-1 rounded-5 p-2" name="customer_name" required>
+                </div>
+
+                <!-- Email -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input type="email" class="form-control border-1 rounded-5 p-2" name="email" required>
+                </div>
+
+                <!-- Phone -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Phone Number</label>
+                    <input type="text" class="form-control border-1 rounded-5 p-2" name="phone" required>
+                </div>
+
+                <!-- Age -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Age</label>
+                    <input type="number" class="form-control border-1 rounded-5 p-2" name="age" required>
+                </div>
+
+                <!-- ID Number -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">ID Number</label>
+                    <input type="text" class="form-control border-1 rounded-5 p-2" name="id_number" required>
+                </div>
+
+                <!-- People -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Number of People</label>
+                    <input type="number" class="form-control border-1 rounded-5 p-2" name="people" required>
+                </div>
+
+                <!-- Check-in -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Check-In Date</label>
+                    <input type="date" class="form-control border-1 rounded-5 p-2" name="check_in" required>
+                </div>
+
+                <!-- Check-out -->
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Check-Out Date</label>
+                    <input type="date" class="form-control border-1 rounded-5 p-2" name="check_out" required>
+                </div>
+
+                <!-- Message -->
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Message (Optional)</label>
+                    <textarea class="form-control border-1 rounded-5 p-3" name="message" rows="4" placeholder="Extra notes or requests..."></textarea>
+                </div>
+
+                <!-- Buttons -->
+                <div class="col-12 d-flex justify-content-center gap-3 mt-3">
+
+                    <button type="submit"
+                            class="btn btn-primary px-4 py-2 rounded-5 shadow-sm fw-semibold">
+                        Book Room
+                    </button>
+
+                    <a href="/rooms/"
+                       class="btn btn-outline-primary px-4 py-2 rounded-5 shadow-sm fw-semibold">
+                        Back
+                    </a>
+
+                </div>
+
+            </form>
         </div>
-        <br>
-        <div class="col-md-3 w-25 m-auto">
-            <label class="form-label">Age</label>
-            <input type="number" class="form-control border-1 rounded-5" name="age" required>
-        </div>
-        <br>
-        <div class="col-md-3 w-25 m-auto">
-            <label class="form-label">ID Number</label>
-            <input type="text" class="form-control border-1 rounded-5" name="id_number" required>
-        </div>
-        <div class="col-md-3 w-25 m-auto">
-            <label class="form-label">Number of People</label>
-            <input type="number" class="form-control border-1 rounded-5" name="people" required>
-        </div>
-        <div class="col-md-3 w-50 m-auto">
-            <label class="form-label">Check-In Date</label>
-            <input type="date" class="form-control border-1 rounded-5" name="check_in" required>
-        </div>
-        <div class="col-md-3 w-50 m-auto">
-            <label class="form-label">Check-Out Date</label>
-            <input type="date" class="form-control border-1 rounded-5" name="check_out" required>
-        </div>
-        <div class="col-12 w-75 m-auto">
-            <label class="form-label text-center">Message (Optional)</label>
-            <textarea class="form-control border-1 rounded-5" name="message" rows="3"></textarea>
-        </div>
-        <div class="col-12 d-flex mt-2 mb-2 m-auto">
-            <button type="submit" class="btn btn-primary border-0 rounded-5">Book Room</button>
-            <button type="submit" class="btn btn-outline-primary ms-2 border-1 rounded-5"><a href="/rooms/" class="text-dark-emphasis">Back</a></button>
-        </div>
-    </form>
+
+    </div>
+
 </div>
+
 {% endblock %}

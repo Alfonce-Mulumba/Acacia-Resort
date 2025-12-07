@@ -25,5 +25,7 @@ urlpatterns = [
     path('admin/customers/', views.admin_customers, name='admin_customers'),
     path('admin/customers/clear/<int:booking_id>/', views.clear_customer, name='clear_customer'),
     path("ticket/<int:ticket_id>/", views.ticket_view, name="ticket_download"),
+    path("admin/rooms/edit/<int:room_id>/", views.admin_edit_room, name="admin_edit_room"),
+
 
 ]
